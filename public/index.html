@@ -722,15 +722,15 @@ async function downloadVideo() {
             videoCover.src = videoData.cover;
             videoTitle.innerText = videoData.title || "Video TikTok";
             
+            // Mengambil URL HD atau Standar dari TikWM
             currentVideoUrl = videoData.play;
             currentVideoTitle = (videoData.title || "tiktok_video").replace(/[^a-zA-Z0-9]/g, "_").substring(0, 30);
 
             loading.classList.add('hidden');
             result.classList.remove('hidden');
 
-            // --- OTOMATIS DOWNLOAD LANGSUNG BEGITU SELESAI PROSES ---
-            const downloadApiUrl = `/api/download?url=${encodeURIComponent(currentVideoUrl)}&title=${encodeURIComponent(currentVideoTitle)}`;
-            window.location.href = downloadApiUrl;
+            // Jalankan Otomatis Unduh
+            execDownload();
 
         } else {
             alert("Gagal mengambil video. Pastikan link benar dan akun tidak privat.");
@@ -743,14 +743,26 @@ async function downloadVideo() {
     }
 }
 
+// Fungsi Eksekusi Unduhan Langsung
+function execDownload() {
+    if (!currentVideoUrl) return;
+    
+    // Memanggil backend proxy kita
+    const downloadApiUrl = `/api/download?url=${encodeURIComponent(currentVideoUrl)}&title=${encodeURIComponent(currentVideoTitle)}`;
+    
+    // Trik pemicu elemen <a> agar browser HP tidak memblokir window.location
+    const a = document.createElement('a');
+    a.href = downloadApiUrl;
+    a.download = `${currentVideoTitle}.mp4`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
 function triggerDirectDownload(event) {
     event.preventDefault();
-    if (!currentVideoUrl) return;
-    const downloadApiUrl = `/api/download?url=${encodeURIComponent(currentVideoUrl)}&title=${encodeURIComponent(currentVideoTitle)}`;
-    window.location.href = downloadApiUrl;
+    execDownload();
 }
-</script>
-
     </script>
 </body>
 </html>
